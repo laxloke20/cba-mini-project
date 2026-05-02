@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>API Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        header {
+            padding: 18px;
+            text-align: center;
+            background: #1e293b;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            width: 180px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .title {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .value {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .fast { border-left: 4px solid #22c55e; }
+        .slow { border-left: 4px solid #ef4444; }
+
+        .chart-container {
+            width: 400px;   /* 👈 smaller width */
+            margin: 0 auto; /* center */
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        canvas {
+            background: #ffffff;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>API Performance Dashboard</header>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card fast">
+            <div class="title">Fast Requests</div>
+            <div class="value" id="fast-count">0</div>
+            <div id="fast-time">0 sec</div>
+        </div>
+
+        <div class="card slow">
+            <div class="title">Slow Requests</div>
+            <div class="value" id="slow-count">0</div>
+            <div id="slow-time">0 sec</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="chart" height="200"></canvas>
+    </div>
+
+</div>
+
+<script>
+let chart;
+
+function initChart() {
+    const ctx = document.getElementById('chart');
+
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Fast API', 'Slow API'],
+            datasets: [{
+                label: 'Avg Response Time (sec)',
+                data: [0, 0],
+                backgroundColor: ['#22c55e', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+async function loadStats() {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+
+    document.getElementById("fast-count").innerText = data.fast.count;
+    document.getElementById("fast-time").innerText =
+        "Avg: " + data.fast.average_response_time.toFixed(3) + " sec";
+
+    document.getElementById("slow-count").innerText = data.slow.count;
+    document.getElementById("slow-time").innerText =
+        "Avg: " + data.slow.average_response_time.toFixed(3) + " sec";
+
+    if (chart) {
+        chart.data.datasets[0].data = [
+            data.fast.average_response_time,
+            data.slow.average_response_time
+        ];
+        chart.update();
+    }
+}
+
+initChart();
+loadStats();
+setInterval(loadStats, 3000);
+</script>
+
+</body>
+</html>

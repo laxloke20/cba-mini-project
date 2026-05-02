@@ -1,0 +1,40 @@
+name: cba-mini-project
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cba-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - api-data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - cba-network
+
+  generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cba-generator
+    command: python traffic_generator.py
+    depends_on:
+      - api
+    env_file:                # ✅ added here
+      - .env
+    environment:
+      - API_URL=http://api:5000
+    restart: unless-stopped
+    networks:
+      - cba-network
+
+networks:
+  cba-network:
+    driver: bridge
+
+volumes:
+  api-data:
