@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cba-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cba-grafana
+  template:
+    metadata:
+      labels:
+        app: cba-grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana
+          ports:
+            - containerPort: 3000

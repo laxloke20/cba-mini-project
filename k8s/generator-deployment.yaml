@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cba-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cba-generator
+  template:
+    metadata:
+      labels:
+        app: cba-generator
+    spec:
+      containers:
+        - name: cba-generator
+          image: cba-api:latest
+          imagePullPolicy: Never
+          command: ["python", "traffic_generator.py"]
+          env:
+            - name: API_URL
+              value: "http://cba-api-service:5000"

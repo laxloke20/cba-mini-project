@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cba-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cba-prometheus
+  template:
+    metadata:
+      labels:
+        app: cba-prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          ports:
+            - containerPort: 9090
